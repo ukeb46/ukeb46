@@ -28,8 +28,9 @@ var float field_2 = na
 var float field_3 = na
 
 field_0 = zee1.price
+float prevField1 = na
 if bool(ta.change(direction))
-    float prevField1 = field_1
+    prevField1 := field_1
     field_1 := field_0
     lastPoint := prevField1
     line zeezee = na
