@@ -1,0 +1,65 @@
+//@version=6
+//@author = yashgode9 [YASH NANDKUMAR GODE]
+
+import yashgode9/signalLib_yashgode9/2 as signalLib
+indicator('buysellsignal-yashgode9', 'buysellsignal-yashgode9', true, format.price, max_labels_count = 200, max_lines_count = 50)
+
+DEPTH_ENGINE = input.int(30, 'DEPTH_ENGINE', minval = 1, step = 1, group = 'signalLib Config')
+DEVIATION_ENGINE = input.int(5, 'DEVIATION_ENGINE', minval = 1, step = 1, group = 'signalLib Config')
+BACKSTEP_ENGINE = input.int(5, 'BACKSTEP_ENGINE', minval = 2, step = 1, group = 'signalLib Config')
+labels = input(0, 'Labels Transparency', group = 'Labels')
+buycolor = input(#03ff85, 'Buy-Color', group = 'Colors')
+sellcolor = input(#fc0808, 'Sell-Color', group = 'Colors')
+buycolor1 = #000000
+sellcolor1 = #000000
+labelsize__0 = input.int(3, 'Label size', minval = 1, maxval = 5, group = 'Labels')
+labelsize = labelsize__0 == 1 ? size.tiny : labelsize__0 == 2 ? size.small : labelsize__0 == 3 ? size.normal : labelsize__0 == 4 ? size.large : size.huge
+repaint = true
+extend = false
+
+enableBuyAlerts = input.bool(true, "Enable Buy Alerts", group = "Alerts")
+enableSellAlerts = input.bool(true, "Enable Sell Alerts", group = "Alerts")
+
+[direction, zee1, zee2] = signalLib.signalLib(low, high, DEPTH_ENGINE, DEVIATION_ENGINE, BACKSTEP_ENGINE)
+
+var float lastPoint = na
+var float field_1 = na
+var float field_2 = na
+var float field_3 = na
+
+field_0 = zee1.price
+if bool(ta.change(direction))
+    field_1 := zee1.price
+    lastPoint := field_1[1]
+    line zeezee = na
+    label point = na
+    string nowPoint = ''
+    if repaint
+        nowPoint := direction < 0 ? zee2.price < lastPoint ? 'Buy-point' : 'Buy-point' : zee2.price > lastPoint ? 'Sell-point' : 'Sell-point'
+        point := label.new(zee2, nowPoint, xloc.bar_time, yloc.price, color.new(direction < 0 ? buycolor : sellcolor, labels), direction > 0 ? label.style_label_down : label.style_label_up, color.new(direction > 0 ? buycolor1 : sellcolor1, labels), labelsize)
+        if direction == direction[1]
+            line.delete(zeezee[1])
+            label.delete(point[1])
+        else
+            line.set_extend(zeezee[1], extend.none)
+    else
+        if direction != direction[1]
+            field_2 := zee2.price
+            field_3 := zee2.price
+            nowPoint := direction[1] < 0 ? field_2[1] < lastPoint[1] ? 'Buy-point' : 'Buy-point' : field_3[1] > lastPoint[1] ? 'Sell-point' : 'Sell-point'
+            point := label.new(zee2[1], nowPoint, xloc.bar_time, yloc.price, color.new(direction[1] < 0 ? buycolor : sellcolor, labels), direction[1] > 0 ? label.style_label_down : label.style_label_up, color.new(direction[1] > 0 ? buycolor1 : sellcolor1, labels), labelsize)
+
+buySignal = ta.change(direction) != 0 and direction < 0
+sellSignal = ta.change(direction) != 0 and direction > 0
+
+if bool(ta.change(direction))
+    if direction > 0
+        alert("Sell signal generated!!!", alert.freq_once_per_bar_close)
+    else
+        alert("Buy signal generated!!!", alert.freq_once_per_bar_close)
+
+alertcondition(buySignal and enableBuyAlerts, "Buy Alert", "BUY SIGNAL - {{ticker}} @ {{close}}")
+alertcondition(sellSignal and enableSellAlerts, "Sell Alert", "SELL SIGNAL - {{ticker}} @ {{close}}")
+
+plotshape(buySignal, 'Buy', shape.triangleup, location.belowbar, buycolor, text = "BUY", size = size.small)
+plotshape(sellSignal, 'Sell', shape.triangledown, location.abovebar, sellcolor, text = "SELL", size = size.small)
