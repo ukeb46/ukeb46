@@ -29,7 +29,6 @@ var float field_3 = na
 
 field_0 = zee1.price
 if bool(ta.change(direction))
-    lastPoint := field_1
     field_1 := field_0
     line zeezee = na
     label point = na
