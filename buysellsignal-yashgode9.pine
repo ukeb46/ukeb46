@@ -33,7 +33,7 @@ var float field_1 = na
 var float field_2 = na
 var float field_3 = na
 var line zeezee = na
-var label point = na
+var label signalLabel = na
 var string nowPoint = ''
 
 field_0 = zee1.price
@@ -46,7 +46,7 @@ field_1 := directionChanged ? field_0 : field_1
 // ==================== LABEL & LINE DRAWING ====================
 if directionChanged
     zeezee := na
-    point := na
+    signalLabel := na
     nowPoint := ''
 
     if repaint
@@ -55,11 +55,11 @@ if directionChanged
         labelColor = color.new(direction < 0 ? buycolor : sellcolor, labelTransparency)
         labelStyle = direction > 0 ? label.style_label_down : label.style_label_up
         textColor = color.new(direction > 0 ? buycolor1 : sellcolor1, labelTransparency)
-        point := label.new(zee2, nowPoint, xloc.bar_time, yloc.price, labelColor, labelStyle, textColor, labelsize)
+        signalLabel := label.new(zee2, nowPoint, xloc.bar_time, yloc.price, labelColor, labelStyle, textColor, labelsize)
 
         if direction == direction[1]
             line.delete(zeezee[1])
-            label.delete(point[1])
+            label.delete(signalLabel[1])
         else
             line.set_extend(zeezee[1], extend.none)
     else
@@ -71,7 +71,7 @@ if directionChanged
             labelColor = color.new(direction[1] < 0 ? buycolor : sellcolor, labelTransparency)
             labelStyle = direction[1] > 0 ? label.style_label_down : label.style_label_up
             textColor = color.new(direction[1] > 0 ? buycolor1 : sellcolor1, labelTransparency)
-            point := label.new(zee2[1], nowPoint, xloc.bar_time, yloc.price, labelColor, labelStyle, textColor, labelsize)
+            signalLabel := label.new(zee2[1], nowPoint, xloc.bar_time, yloc.price, labelColor, labelStyle, textColor, labelsize)
 
 // ==================== BUY/SELL SIGNALS ====================
 buySignal = directionChanged and direction < 0
