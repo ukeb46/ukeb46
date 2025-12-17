@@ -51,7 +51,11 @@ if directionChanged
 
     if repaint
         nowPoint := direction < 0 ? zee2.price < lastPoint ? 'Buy-point' : 'Buy-point' : zee2.price > lastPoint ? 'Sell-point' : 'Sell-point'
-        point := label.new(zee2, nowPoint, xloc.bar_time, yloc.price, color.new(direction < 0 ? buycolor : sellcolor, labelTransparency), direction > 0 ? label.style_label_down : label.style_label_up, color.new(direction > 0 ? buycolor1 : sellcolor1, labelTransparency), labelsize)
+
+        labelColor = color.new(direction < 0 ? buycolor : sellcolor, labelTransparency)
+        labelStyle = direction > 0 ? label.style_label_down : label.style_label_up
+        textColor = color.new(direction > 0 ? buycolor1 : sellcolor1, labelTransparency)
+        point := label.new(zee2, nowPoint, xloc.bar_time, yloc.price, labelColor, labelStyle, textColor, labelsize)
 
         if direction == direction[1]
             line.delete(zeezee[1])
@@ -63,7 +67,11 @@ if directionChanged
             field_2 := zee2.price
             field_3 := zee2.price
             nowPoint := direction[1] < 0 ? field_2[1] < lastPoint[1] ? 'Buy-point' : 'Buy-point' : field_3[1] > lastPoint[1] ? 'Sell-point' : 'Sell-point'
-            point := label.new(zee2[1], nowPoint, xloc.bar_time, yloc.price, color.new(direction[1] < 0 ? buycolor : sellcolor, labelTransparency), direction[1] > 0 ? label.style_label_down : label.style_label_up, color.new(direction[1] > 0 ? buycolor1 : sellcolor1, labelTransparency), labelsize)
+
+            labelColor = color.new(direction[1] < 0 ? buycolor : sellcolor, labelTransparency)
+            labelStyle = direction[1] > 0 ? label.style_label_down : label.style_label_up
+            textColor = color.new(direction[1] > 0 ? buycolor1 : sellcolor1, labelTransparency)
+            point := label.new(zee2[1], nowPoint, xloc.bar_time, yloc.price, labelColor, labelStyle, textColor, labelsize)
 
 // ==================== BUY/SELL SIGNALS ====================
 buySignal = directionChanged and direction < 0
