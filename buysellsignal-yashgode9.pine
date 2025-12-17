@@ -26,13 +26,16 @@ var float lastPoint = na
 var float field_1 = na
 var float field_2 = na
 var float field_3 = na
-var float prevField1 = na
 
 field_0 = zee1.price
+
+// Direction değiştiğinde field_1'i güncelle
 if ta.change(direction)
-    prevField1 := field_1
+    lastPoint := field_1
     field_1 := field_0
-    lastPoint := prevField1
+
+// Label ve çizgi işlemleri
+if ta.change(direction)
     line zeezee = na
     label point = na
     string nowPoint = ''
