@@ -33,9 +33,9 @@ if ta.change(direction)
     prevField1 := field_1
     field_1 := field_0
     lastPoint := prevField1
-    line zeezee = na
-    label point = na
-    string nowPoint = ''
+    zeezee = na
+    point = na
+    nowPoint = ''
     if repaint
         nowPoint := direction < 0 ? zee2.price < lastPoint ? 'Buy-point' : 'Buy-point' : zee2.price > lastPoint ? 'Sell-point' : 'Sell-point'
         point := label.new(zee2, nowPoint, xloc.bar_time, yloc.price, color.new(direction < 0 ? buycolor : sellcolor, labels), direction > 0 ? label.style_label_down : label.style_label_up, color.new(direction > 0 ? buycolor1 : sellcolor1, labels), labelsize)
