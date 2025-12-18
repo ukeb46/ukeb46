@@ -63,25 +63,30 @@ volumeSufficient = not useVolumeFilter or volume >= (avgVolume * volumeMultiplie
 buySignal = directionChanged and direction < 0 and priceMoveSufficient and volumeSufficient
 sellSignal = directionChanged and direction > 0 and priceMoveSufficient and volumeSufficient
 
-// ==================== PLOT SHAPES ====================
-plotshape(buySignal, 'Buy', shape.triangleup, location.belowbar, buycolor, text = "BUY", size = size.small)
-plotshape(sellSignal, 'Sell', shape.triangledown, location.abovebar, sellcolor, text = "SELL", size = size.small)
+// 5 bar gecikmeli sinyal
+buySignal5bar = buySignal[5]
+sellSignal5bar = sellSignal[5]
+
+// ==================== PLOT SHAPES (5 BAR GECİKMELİ) ====================
+plotshape(buySignal5bar, 'Buy', shape.triangleup, location.belowbar, buycolor, text = "BUY", size = size.small)
+plotshape(sellSignal5bar, 'Sell', shape.triangledown, location.abovebar, sellcolor, text = "SELL", size = size.small)
 
 // ==================== JSON MESAJ HAZIRLA ====================
 buyJsonMsg = '{"action":"BUY","symbol":"' + syminfo.ticker + '","price":' + str.tostring(close) + ',"time":"' + str.format("{0,date,yyyy-MM-dd HH:mm:ss}", timenow) + '"}'
 sellJsonMsg = '{"action":"SELL","symbol":"' + syminfo.ticker + '","price":' + str.tostring(close) + ',"time":"' + str.format("{0,date,yyyy-MM-dd HH:mm:ss}", timenow) + '"}'
 
+lastMsg = buySignal5bar ? buyJsonMsg : sellSignal5bar ? sellJsonMsg : '{"status":"waiting"}'
+
 // ==================== MESAJ KUTUSU (JSON) ====================
 var table jsonBox = table.new(position.bottom_right, 1, 1, border_width=1)
 
 if barstate.islast
-    lastMsg = buySignal ? buyJsonMsg : sellSignal ? sellJsonMsg : '{"status":"waiting"}'
     table.cell(jsonBox, 0, 0, lastMsg, bgcolor=color.new(color.black, 20), text_color=color.yellow, text_size=size.small)
 
 // ==================== ALERTS (JSON FORMAT) ====================
-if buySignal and enableBuyAlerts
+if buySignal5bar and enableBuyAlerts
     alert(buyJsonMsg, alert.freq_once_per_bar_close)
 
-if sellSignal and enableSellAlerts
+if sellSignal5bar and enableSellAlerts
     alert(sellJsonMsg, alert.freq_once_per_bar_close)
 
