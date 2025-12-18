@@ -63,14 +63,14 @@ volumeSufficient = not useVolumeFilter or volume >= (avgVolume * volumeMultiplie
 buySignal = directionChanged and direction < 0 and priceMoveSufficient and volumeSufficient
 sellSignal = directionChanged and direction > 0 and priceMoveSufficient and volumeSufficient
 
+// ==================== PLOT SHAPES ====================
+plotshape(buySignal, 'Buy', shape.triangleup, location.belowbar, buycolor, text = "BUY", size = size.small)
+plotshape(sellSignal, 'Sell', shape.triangledown, location.abovebar, sellcolor, text = "SELL", size = size.small)
+
 // ==================== ALERTS ====================
 if buySignal and enableBuyAlerts
     alert("BUY SIGNAL! " + str.tostring(close), alert.freq_once_per_bar_close)
 
 if sellSignal and enableSellAlerts
     alert("SELL SIGNAL! " + str.tostring(close), alert.freq_once_per_bar_close)
-
-// ==================== PLOT SHAPES ====================
-plotshape(buySignal, 'Buy', shape.triangleup, location.belowbar, buycolor, text = "BUY", size = size.small)
-plotshape(sellSignal, 'Sell', shape.triangledown, location.abovebar, sellcolor, text = "SELL", size = size.small)
 
