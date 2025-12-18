@@ -1,0 +1,159 @@
+//@version=6
+indicator('Linear Regression Channel - Al/Sat Sinyalleri', 'LRC-AlarmSinyalleri', true, max_labels_count = 200)
+
+// ==================== INPUTS ====================
+// Doğrusal Regresyon Parametreleri
+length = input.int(100, 'Sayım (Count)', minval = 10, maxval = 500, group = 'Doğrusal Regresyon Ayarları', tooltip = 'Doğrusal regresyon hesaplaması için kullanılan bar sayısı')
+upperDev = input.float(2.0, 'Üst Sapma (Upper Deviation)', minval = 0.5, maxval = 5.0, step = 0.1, group = 'Doğrusal Regresyon Ayarları', tooltip = 'Merkez çizgiden üst kanala olan standart sapma mesafesi')
+lowerDev = input.float(2.0, 'Alt Sapma (Lower Deviation)', minval = 0.5, maxval = 5.0, step = 0.1, group = 'Doğrusal Regresyon Ayarları', tooltip = 'Merkez çizgiden alt kanala olan standart sapma mesafesi')
+useUpperChannel = input.bool(true, 'Üst Sapmayı Kullan', group = 'Doğrusal Regresyon Ayarları', tooltip = 'Üst kanalı göster/gizle')
+useLowerChannel = input.bool(true, 'Alt Sapmayı Kullan', group = 'Doğrusal Regresyon Ayarları', tooltip = 'Alt kanalı göster/gizle')
+
+// Alarm Ayarları
+enableBuyAlerts = input.bool(true, 'Alış Alarmlarını Etkinleştir', group = 'Alarm Ayarları')
+enableSellAlerts = input.bool(true, 'Satış Alarmlarını Etkinleştir', group = 'Alarm Ayarları')
+alertSensitivity = input.string('Dokunma', 'Alarm Hassasiyeti', options = ['Dokunma', 'Kırılma'], group = 'Alarm Ayarları', tooltip = 'Dokunma: Fiyat kanala dokunduğunda sinyal, Kırılma: Fiyat kanalı geçtiğinde sinyal')
+
+// Görsel Ayarlar
+lineColor = input.color(#2962FF, 'Merkez Çizgi Rengi', group = 'Görsel Ayarlar')
+upperColor = input.color(#E91E63, 'Üst Kanal Rengi', group = 'Görsel Ayarlar')
+lowerColor = input.color(#4CAF50, 'Alt Kanal Rengi', group = 'Görsel Ayarlar')
+buyColor = input.color(#00FF00, 'Alış Sinyali Rengi', group = 'Görsel Ayarlar')
+sellColor = input.color(#FF0000, 'Satış Sinyali Rengi', group = 'Görsel Ayarlar')
+lineWidth = input.int(2, 'Çizgi Kalınlığı', minval = 1, maxval = 4, group = 'Görsel Ayarlar')
+
+// ==================== DOĞRUSAL REGRESYON HESAPLAMALARI ====================
+
+// Doğrusal regresyon fonksiyonu
+calcLinearRegression(src, len) =>
+    sumX = 0.0
+    sumY = 0.0
+    sumXY = 0.0
+    sumX2 = 0.0
+
+    for i = 0 to len - 1
+        x = float(i)
+        y = src[len - 1 - i]
+        sumX := sumX + x
+        sumY := sumY + y
+        sumXY := sumXY + x * y
+        sumX2 := sumX2 + x * x
+
+    n = float(len)
+    slope = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX)
+    intercept = (sumY - slope * sumX) / n
+
+    [slope, intercept]
+
+// Standart sapma hesaplama
+calcStdDev(src, len, slope, intercept) =>
+    sumSquares = 0.0
+
+    for i = 0 to len - 1
+        x = float(i)
+        y = src[len - 1 - i]
+        expectedY = slope * x + intercept
+        deviation = y - expectedY
+        sumSquares := sumSquares + deviation * deviation
+
+    math.sqrt(sumSquares / len)
+
+// Ana hesaplamalar
+[slope, intercept] = calcLinearRegression(close, length)
+stdDev = calcStdDev(close, length, slope, intercept)
+
+// Mevcut bar için regresyon değeri (en son nokta)
+linreg = slope * (length - 1) + intercept
+upperBand = linreg + upperDev * stdDev
+lowerBand = linreg - lowerDev * stdDev
+
+// ==================== AL/SAT SİNYAL MANTIĞI ====================
+
+// Önceki değerleri sakla
+var float prevClose = na
+var float prevUpperBand = na
+var float prevLowerBand = na
+
+// Sinyal mantığı - Hassasiyet tipine göre
+buySignal = false
+sellSignal = false
+
+if alertSensitivity == 'Dokunma'
+    // Dokunma mantığı: Fiyat kanala yaklaştığında veya içine girdiğinde
+    buySignal := useLowerChannel and (close <= lowerBand or (low <= lowerBand and close > lowerBand))
+    sellSignal := useUpperChannel and (close >= upperBand or (high >= upperBand and close < upperBand))
+else  // 'Kırılma'
+    // Kırılma mantığı: Fiyat kanalı geçip geri döndüğünde
+    buySignal := useLowerChannel and not na(prevClose) and not na(prevLowerBand) and prevClose < prevLowerBand and close > lowerBand
+    sellSignal := useUpperChannel and not na(prevClose) and not na(prevUpperBand) and prevClose > prevUpperBand and close < upperBand
+
+// Önceki değerleri güncelle
+prevClose := close
+prevUpperBand := upperBand
+prevLowerBand := lowerBand
+
+// Çok sık sinyal önleme
+var int lastBuyBar = -999
+var int lastSellBar = -999
+var int barCounter = 0
+barCounter := barCounter + 1
+
+minimumBarsBetweenSignals = 3
+
+buySignalFiltered = buySignal and (barCounter - lastBuyBar) >= minimumBarsBetweenSignals
+sellSignalFiltered = sellSignal and (barCounter - lastSellBar) >= minimumBarsBetweenSignals
+
+// Sinyal barlarını güncelle
+if buySignalFiltered
+    lastBuyBar := barCounter
+
+if sellSignalFiltered
+    lastSellBar := barCounter
+
+// ==================== ALARMLAR ====================
+if buySignalFiltered and enableBuyAlerts
+    alert('🟢 ALış SİNYALİ! Fiyat: ' + str.tostring(close, '#.##') + ' | Alt Kanal: ' + str.tostring(lowerBand, '#.##'), alert.freq_once_per_bar_close)
+
+if sellSignalFiltered and enableSellAlerts
+    alert('🔴 SATIŞ SİNYALİ! Fiyat: ' + str.tostring(close, '#.##') + ' | Üst Kanal: ' + str.tostring(upperBand, '#.##'), alert.freq_once_per_bar_close)
+
+// ==================== GÖRSELLEŞTİRME ====================
+
+// Doğrusal regresyon kanalını çiz
+plot(linreg, 'Merkez Çizgi', color = lineColor, linewidth = lineWidth)
+plot(useUpperChannel ? upperBand : na, 'Üst Kanal', color = upperColor, linewidth = lineWidth)
+plot(useLowerChannel ? lowerBand : na, 'Alt Kanal', color = lowerColor, linewidth = lineWidth)
+
+// Kanal arasını doldur
+upperPlot = plot(useUpperChannel ? upperBand : na, display = display.none)
+lowerPlot = plot(useLowerChannel ? lowerBand : na, display = display.none)
+linregPlot = plot(linreg, display = display.none)
+
+fill(linregPlot, upperPlot, color = color.new(upperColor, 95), title = 'Üst Kanal Dolgusu')
+fill(linregPlot, lowerPlot, color = color.new(lowerColor, 95), title = 'Alt Kanal Dolgusu')
+
+// Al/Sat sinyallerini göster
+plotshape(buySignalFiltered, 'Alış Sinyali', shape.triangleup, location.belowbar, buyColor, text = 'AL', size = size.normal)
+plotshape(sellSignalFiltered, 'Satış Sinyali', shape.triangledown, location.abovebar, sellColor, text = 'SAT', size = size.normal)
+
+// ==================== BİLGİ ETİKETLERİ ====================
+// Son bar için bilgi etiketi
+if barstate.islast
+    var label infoLabel = na
+    label.delete(infoLabel)
+
+    infoText = 'LRC Kanalı\n' +
+               'Uzunluk: ' + str.tostring(length) + '\n' +
+               'Üst Sapma: ' + str.tostring(upperDev, '#.#') + '\n' +
+               'Alt Sapma: ' + str.tostring(lowerDev, '#.#') + '\n' +
+               'Merkez: ' + str.tostring(linreg, '#.##') + '\n' +
+               'Üst: ' + str.tostring(upperBand, '#.##') + '\n' +
+               'Alt: ' + str.tostring(lowerBand, '#.##')
+
+    infoLabel := label.new(bar_index, high, infoText,
+                           xloc = xloc.bar_index,
+                           yloc = yloc.price,
+                           color = color.new(color.gray, 85),
+                           style = label.style_label_down,
+                           textcolor = color.white,
+                           size = size.small)
