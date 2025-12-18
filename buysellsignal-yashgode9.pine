@@ -45,51 +45,8 @@ extend = false
 // ==================== SIGNAL LIB ====================
 [direction, zee1, zee2] = signalLib.signalLib(low, high, DEPTH_ENGINE, DEVIATION_ENGINE, BACKSTEP_ENGINE)
 
-// ==================== VARIABLES ====================
-var float lastPoint = na
-var float field_1 = na
-var float field_2 = na
-var float field_3 = na
-var line zeezee = na
-var label signalLabel = na
-var string nowPoint = ''
-
-field_0 = zee1.price
-
 // ==================== DIRECTION CHANGE LOGIC ====================
 directionChanged = ta.change(direction) != 0
-lastPoint := directionChanged ? field_1 : lastPoint
-field_1 := directionChanged ? field_0 : field_1
-
-// ==================== LABEL & LINE DRAWING ====================
-if directionChanged
-    zeezee := na
-    signalLabel := na
-    nowPoint := ''
-
-    if repaint
-        nowPoint := direction < 0 ? zee2.price < lastPoint ? 'Buy-point' : 'Buy-point' : zee2.price > lastPoint ? 'Sell-point' : 'Sell-point'
-
-        labelColor = color.new(direction < 0 ? buycolor : sellcolor, labelTransparency)
-        labelStyle = direction > 0 ? label.style_label_down : label.style_label_up
-        textColor = color.new(direction > 0 ? buycolor1 : sellcolor1, labelTransparency)
-        signalLabel := label.new(zee2, nowPoint, xloc.bar_time, yloc.price, labelColor, labelStyle, textColor, labelsize)
-
-        if direction == direction[1]
-            line.delete(zeezee[1])
-            label.delete(signalLabel[1])
-        else
-            line.set_extend(zeezee[1], extend.none)
-    else
-        if direction != direction[1]
-            field_2 := zee2.price
-            field_3 := zee2.price
-            nowPoint := direction[1] < 0 ? field_2[1] < lastPoint[1] ? 'Buy-point' : 'Buy-point' : field_3[1] > lastPoint[1] ? 'Sell-point' : 'Sell-point'
-
-            labelColor = color.new(direction[1] < 0 ? buycolor : sellcolor, labelTransparency)
-            labelStyle = direction[1] > 0 ? label.style_label_down : label.style_label_up
-            textColor = color.new(direction[1] > 0 ? buycolor1 : sellcolor1, labelTransparency)
-            signalLabel := label.new(zee2[1], nowPoint, xloc.bar_time, yloc.price, labelColor, labelStyle, textColor, labelsize)
 
 // ==================== FILTER CALCULATIONS ====================
 atr = ta.atr(atrLength)
