@@ -76,11 +76,16 @@ sellAllowed = (barCounter - lastSellBar) >= consecutiveSignalBars
 buySignal = buySignalRaw and priceMoveSufficient and volumeSufficient and buyAllowed
 sellSignal = sellSignalRaw and priceMoveSufficient and volumeSufficient and sellAllowed
 
-// Bar sayaçlarını güncelle
+// Bar sayaçlarını güncelle ve alarm gönder
 if buySignal
     lastBuyBar := barCounter
+    if enableBuyAlerts
+        alert("BUY SIGNAL! " + str.tostring(close), alert.freq_once_per_bar_close)
+
 if sellSignal
     lastSellBar := barCounter
+    if enableSellAlerts
+        alert("SELL SIGNAL! " + str.tostring(close), alert.freq_once_per_bar_close)
 
 // ==================== PLOT SHAPES ====================
 plotshape(buySignal, 'Buy', shape.triangleup, location.belowbar, buycolor, text = "BUY", size = size.small)
