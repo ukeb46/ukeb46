@@ -67,6 +67,17 @@ sellSignal = directionChanged and direction > 0 and priceMoveSufficient and volu
 plotshape(buySignal, 'Buy', shape.triangleup, location.belowbar, buycolor, text = "BUY", size = size.small)
 plotshape(sellSignal, 'Sell', shape.triangledown, location.abovebar, sellcolor, text = "SELL", size = size.small)
 
+// ==================== MESAJ KUTUSU ====================
+var table msgBox = table.new(position.top_right, 2, 3, border_width=1)
+
+if barstate.islast
+    table.cell(msgBox, 0, 0, "Son Sinyal", bgcolor=color.new(color.blue, 0), text_color=color.white)
+    table.cell(msgBox, 1, 0, buySignal ? "BUY 🟢" : sellSignal ? "SELL 🔴" : "Beklemede", bgcolor=color.new(color.gray, 80), text_color=color.white)
+    table.cell(msgBox, 0, 1, "Fiyat", bgcolor=color.new(color.blue, 0), text_color=color.white)
+    table.cell(msgBox, 1, 1, str.tostring(close, format.mintick), bgcolor=color.new(color.gray, 80), text_color=color.white)
+    table.cell(msgBox, 0, 2, "Alarm", bgcolor=color.new(color.blue, 0), text_color=color.white)
+    table.cell(msgBox, 1, 2, enableBuyAlerts or enableSellAlerts ? "Aktif ✓" : "Kapalı ✗", bgcolor=color.new(color.gray, 80), text_color=enableBuyAlerts or enableSellAlerts ? color.lime : color.red)
+
 // ==================== ALERTS ====================
 if buySignal and enableBuyAlerts
     alert("BUY SIGNAL! " + str.tostring(close), alert.freq_once_per_bar_close)
