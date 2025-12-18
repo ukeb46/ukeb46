@@ -88,8 +88,49 @@ Gösterge, aşağıdakileri döndüren `signalLib_yashgode9/2` kütüphanesini k
 1. Göstergeyi grafiğinize ekleyin
 2. Varsayılan ayarlar çoğu zaman dilimi için iyi çalışır
 3. Parametreleri işlem tarzınıza göre ayarlayın:
+   - **1 Saniyelik Grafikler (Scalping)**: DEPTH_ENGINE (5-10), DEVIATION_ENGINE (2-3), BACKSTEP_ENGINE (2-3)
    - **Gün İçi İşlemler**: Daha fazla sinyal için daha düşük DEPTH_ENGINE (15-25)
    - **Salınım İşlemleri**: Daha az ama daha güçlü sinyaller için daha yüksek DEPTH_ENGINE (35-50)
+
+### 1 Saniyelik Grafik Optimizasyonu (YENİ!)
+Gösterge artık ultra hızlı 1 saniyelik grafikler için özel optimizasyonlar içermektedir:
+
+#### Otomatik Parametre Tespiti
+- 1s, 5s veya dakika altı zaman dilimlerinde çalıştığını otomatik olarak algılar
+- Her zaman dilimi türü için optimize edilmiş varsayılan değerler sağlar
+- Önerilen ayarlar parametre ipuçlarında görünür
+
+#### Gürültü Filtreleme (1s Grafikler için Şiddetle Önerilir)
+- **ATR Tabanlı Filtre**: Piyasa gürültüsünden kaynaklanan yanlış sinyalleri ortadan kaldırır
+  - `ATR Çarpanı`: 1s grafikler için 0.2-0.5 (varsayılan: 0.3)
+  - Düşük değerler = daha fazla sinyal, Yüksek değerler = daha az ama daha kaliteli sinyal
+
+- **Volume Filtresi** (Opsiyonel): Sinyalleri hacim gücü ile doğrular
+  - Zayıf hareketleri filtrelemeye yardımcı olur
+  - Piyasa koşullarına göre etkinleştirilebilir/devre dışı bırakılabilir
+
+- **Ardışık Sinyal Önleme**: Hızlı ateşli sinyalleri önler
+  - Varsayılan: Aynı yönde sinyaller arası 2 bar
+  - 1s grafiklerde aşırı işlem yapmayı azaltır
+
+#### Debug Özellikleri
+- **Debug Bilgi Paneli**: Gerçek zamanlı gösterge durumunu gösterir
+  - Mevcut zaman dilimi
+  - Aktif parametre değerleri
+  - ATR ve minimum hareket eşikleri
+  - Filtre durumu (aktif/inaktif)
+
+- **Filtrelenmiş Sinyal Görselleştirmesi**: Hangi sinyallerin filtreler tarafından engellendiğini görün
+  - Gri X işaretleri filtrelenen sinyalleri gösterir
+  - Filtre parametrelerini ayarlamanıza yardımcı olur
+
+#### 1s Grafikler için Performans İpuçları
+1. **Muhafazakar Başlayın**: Varsayılan 1s ayarlarını kullanın (Depth=8, Deviation=2, Backstep=2)
+2. **Gürültü Filtresini Etkinleştirin**: Yanlış sinyallerden kaçınmak için 1s zaman dilimlerinde kritik
+3. **ATR'yi İzleyin**: Piyasa volatilitesine göre ATR çarpanını ayarlayın
+4. **Debug Modunu Kullanın**: Sinyal davranışını anlamak için geçici olarak etkinleştirin
+5. **Volume Filtresini Devre Dışı Bırakın**: Yüksek likiditeye sahip varlıklar ticareti yapmıyorsanız
+6. **Replay Modunda Test Edin**: Canlı işlem yapmadan önce ayarlarınızı geri testte deneyin
 
 ### Alarm Kurulumu
 1. Grafikteki gösterge adına sağ tıklayın
@@ -124,10 +165,15 @@ Gösterge, aşağıdakileri döndüren `signalLib_yashgode9/2` kütüphanesini k
 
 Gösterge ayarları mantıksal gruplara ayrılmıştır:
 
-1. **signalLib Yapılandırması**: Temel sinyal üretim parametreleri
-2. **Alarmlar**: Alarm türlerini etkinleştir/devre dışı bırak
-3. **Etiketler**: Etiketlerin görsel görünümü
-4. **Renkler**: Özelleştirilebilir renk şeması
+1. **signalLib Yapılandırması**: Temel sinyal üretim parametreleri (1s grafikler için otomatik optimize edilmiş)
+2. **Filtreler**: Gürültü azaltma ve sinyal kalitesi kontrolleri (YENİ!)
+   - ATR tabanlı algılama ile gürültü filtresi
+   - Hacim onay filtresi
+   - Ardışık sinyal önleme
+3. **Alarmlar**: Alarm türlerini etkinleştir/devre dışı bırak
+4. **Etiketler**: Etiketlerin görsel görünümü
+5. **Renkler**: Özelleştirilebilir renk şeması
+6. **Debug**: Performans izleme ve sinyal analiz araçları (YENİ!)
 
 ## Önemli Notlar
 
@@ -151,6 +197,20 @@ Gösterge ayarları mantıksal gruplara ayrılmıştır:
 - DEPTH_ENGINE değerini artırın (40-50 deneyin)
 - DEVIATION_ENGINE değerini artırın
 - BACKSTEP_ENGINE değerini artırın
+- **1s grafikler için**: Gürültü Filtresini etkinleştirin ve ATR Çarpanını artırın (0.4-0.6)
+- Ek onay için Volume Filtresini etkinleştirin
+
+### Çok Az Sinyal (1s Grafikler)
+- DEPTH_ENGINE değerini azaltın (5-7 deneyin)
+- ATR Çarpanını azaltın (0.2-0.25)
+- Volume Filtresini devre dışı bırakın
+- Filtre durumunu doğrulamak için Debug Bilgilerini kontrol edin
+
+### 1s Grafiklerde Yanlış Sinyaller
+- ATR Çarpanını artırın (0.4-0.6)
+- Volume Filtresini etkinleştirin
+- Ardışık Sinyal Barlarını artırın (3-5)
+- Daha yüksek DEVIATION_ENGINE kullanın (3-4)
 
 ### Alarmlar Çalışmıyor
 - "Alış Alarmlarını Etkinleştir" veya "Satış Alarmlarını Etkinleştir" seçeneğinin işaretli olduğunu doğrulayın
