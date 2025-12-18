@@ -18,18 +18,21 @@ This is a Pine Script v6 indicator that generates automated buy and sell signals
 ### Customizable Parameters
 
 #### Signal Engine Configuration
-- **DEPTH_ENGINE** (default: 30): Controls the depth of price analysis
+- **DEPTH_ENGINE** (default: 8, optimized for 1s charts): Controls the depth of price analysis
   - Minimum: 1
   - Higher values = less sensitive, fewer signals
   - Lower values = more sensitive, more signals
+  - Recommended: 5-10 for 1s charts, 15-25 for day trading, 35-50 for swing trading
 
-- **DEVIATION_ENGINE** (default: 5): Sets the minimum price deviation threshold
+- **DEVIATION_ENGINE** (default: 2, optimized for 1s charts): Sets the minimum price deviation threshold
   - Minimum: 1
   - Controls signal filtering sensitivity
+  - Recommended: 2-3 for 1s charts, 4-5 for higher timeframes
 
-- **BACKSTEP_ENGINE** (default: 5): Prevents premature signal generation
+- **BACKSTEP_ENGINE** (default: 2, optimized for 1s charts): Prevents premature signal generation
   - Minimum: 2
   - Filters out noise in volatile markets
+  - Recommended: 2-3 for 1s charts, 4-5 for higher timeframes
 
 #### Visual Customization
 - **Labels Transparency** (default: 0): Controls label opacity (0-100)
@@ -88,8 +91,49 @@ The indicator uses the `signalLib_yashgode9/2` library which returns:
 1. Add the indicator to your chart
 2. The default settings work well for most timeframes
 3. Adjust parameters based on your trading style:
+   - **1-Second Charts (Scalping)**: DEPTH_ENGINE (5-10), DEVIATION_ENGINE (2-3), BACKSTEP_ENGINE (2-3)
    - **Day Trading**: Lower DEPTH_ENGINE (15-25) for more signals
    - **Swing Trading**: Higher DEPTH_ENGINE (35-50) for fewer, stronger signals
+
+### 1-Second Chart Optimization (NEW!)
+The indicator now includes special optimizations for ultra-fast 1-second charts:
+
+#### Automatic Parameter Detection
+- Automatically detects when running on 1s, 5s, or sub-minute timeframes
+- Provides optimized default values for each timeframe type
+- Suggested settings appear in parameter tooltips
+
+#### Noise Filtering (Highly Recommended for 1s Charts)
+- **ATR-Based Filter**: Eliminates false signals from market noise
+  - `ATR Çarpanı`: 0.2-0.5 for 1s charts (default: 0.3)
+  - Lower values = more signals, Higher values = fewer but higher quality signals
+
+- **Volume Filter** (Optional): Confirms signals with volume strength
+  - Helps filter out weak movements
+  - Can be enabled/disabled based on market conditions
+
+- **Consecutive Signal Prevention**: Prevents rapid-fire signals
+  - Default: 2 bars between same-direction signals
+  - Reduces overtrading on 1s charts
+
+#### Debug Features
+- **Debug Info Panel**: Shows real-time indicator status
+  - Current timeframe
+  - Active parameter values
+  - ATR and minimum movement thresholds
+  - Filter status (active/inactive)
+
+- **Filtered Signal Visualization**: See which signals were blocked by filters
+  - Gray X marks show filtered-out signals
+  - Helps you tune filter parameters
+
+#### Performance Tips for 1s Charts
+1. **Start Conservative**: Use default 1s settings (Depth=8, Deviation=2, Backstep=2)
+2. **Enable Noise Filter**: Critical for 1s timeframes to avoid false signals
+3. **Monitor ATR**: Adjust ATR multiplier based on market volatility
+4. **Use Debug Mode**: Enable temporarily to understand signal behavior
+5. **Disable Volume Filter**: Unless trading high-liquidity assets
+6. **Test in Replay Mode**: Backtest your settings before live trading
 
 ### Setting Up Alerts
 1. Right-click on the indicator name in the chart
@@ -124,10 +168,15 @@ The indicator uses the `signalLib_yashgode9/2` library which returns:
 
 The indicator settings are organized into logical groups:
 
-1. **signalLib Config**: Core signal generation parameters
-2. **Alerts**: Enable/disable alert types
-3. **Labels**: Visual appearance of labels
-4. **Colors**: Customizable color scheme
+1. **signalLib Config**: Core signal generation parameters (auto-optimized for 1s charts)
+2. **Filters**: Noise reduction and signal quality controls (NEW!)
+   - Noise filter with ATR-based detection
+   - Volume confirmation filter
+   - Consecutive signal prevention
+3. **Alerts**: Enable/disable alert types
+4. **Labels**: Visual appearance of labels
+5. **Colors**: Customizable color scheme
+6. **Debug**: Performance monitoring and signal analysis tools (NEW!)
 
 ## Important Notes
 
@@ -151,6 +200,20 @@ The indicator settings are organized into logical groups:
 - Increase DEPTH_ENGINE value (try 40-50)
 - Increase DEVIATION_ENGINE value
 - Increase BACKSTEP_ENGINE value
+- **For 1s charts**: Enable Noise Filter and increase ATR Multiplier (0.4-0.6)
+- Enable Volume Filter for additional confirmation
+
+### Too Few Signals (1s Charts)
+- Decrease DEPTH_ENGINE (try 5-7)
+- Decrease ATR Multiplier (0.2-0.25)
+- Disable Volume Filter
+- Check Debug Info to verify filter status
+
+### False Signals on 1s Charts
+- Increase ATR Multiplier (0.4-0.6)
+- Enable Volume Filter
+- Increase Consecutive Signal Bars (3-5)
+- Use higher DEVIATION_ENGINE (3-4)
 
 ### Alerts Not Working
 - Verify "Enable Buy Alerts" or "Enable Sell Alerts" is checked

@@ -5,9 +5,9 @@ import yashgode9/signalLib_yashgode9/2 as signalLib
 indicator('buysellsignal-yashgode9', 'buysellsignal-yashgode9', true, format.price, max_labels_count = 200, max_lines_count = 50)
 
 // ==================== INPUTS ====================
-DEPTH_ENGINE = input.int(30, 'DEPTH_ENGINE', minval = 1, step = 1, group = 'signalLib Config')
-DEVIATION_ENGINE = input.int(5, 'DEVIATION_ENGINE', minval = 1, step = 1, group = 'signalLib Config')
-BACKSTEP_ENGINE = input.int(5, 'BACKSTEP_ENGINE', minval = 2, step = 1, group = 'signalLib Config')
+DEPTH_ENGINE = input.int(8, 'DEPTH_ENGINE', minval = 1, step = 1, group = 'signalLib Config')
+DEVIATION_ENGINE = input.int(2, 'DEVIATION_ENGINE', minval = 1, step = 1, group = 'signalLib Config')
+BACKSTEP_ENGINE = input.int(2, 'BACKSTEP_ENGINE', minval = 2, step = 1, group = 'signalLib Config')
 
 labelTransparency = input.int(0, 'Labels Transparency', minval = 0, maxval = 100, group = 'Labels')
 labelsize__0 = input.int(3, 'Label size', minval = 1, maxval = 5, group = 'Labels')
