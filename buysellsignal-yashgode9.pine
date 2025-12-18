@@ -59,31 +59,11 @@ priceMoveSufficient = not useNoiseFilter or math.abs(close - open) >= minPriceMo
 // Volume yeterli mi?
 volumeSufficient = not useVolumeFilter or volume >= (avgVolume * volumeMultiplier)
 
-// Ardışık sinyal kontrolü
-var int lastBuyBar = -999
-var int lastSellBar = -999
-var int barCounter = 0
-barCounter := barCounter + 1
-
 // ==================== BUY/SELL SIGNALS ====================
-buySignalRaw = directionChanged and direction < 0
-sellSignalRaw = directionChanged and direction > 0
+buySignal = directionChanged and direction < 0 and priceMoveSufficient and volumeSufficient
+sellSignal = directionChanged and direction > 0 and priceMoveSufficient and volumeSufficient
 
-// Filtreleri uygula
-buyAllowed = (barCounter - lastBuyBar) >= consecutiveSignalBars
-sellAllowed = (barCounter - lastSellBar) >= consecutiveSignalBars
-
-buySignal = buySignalRaw and priceMoveSufficient and volumeSufficient and buyAllowed
-sellSignal = sellSignalRaw and priceMoveSufficient and volumeSufficient and sellAllowed
-
-// Bar sayaçlarını güncelle
-if buySignal
-    lastBuyBar := barCounter
-
-if sellSignal
-    lastSellBar := barCounter
-
-// Alarm gönder
+// ==================== ALERTS ====================
 if buySignal and enableBuyAlerts
     alert("BUY SIGNAL! " + str.tostring(close), alert.freq_once_per_bar_close)
 
