@@ -26,34 +26,41 @@ lineWidth = input.int(2, 'Çizgi Kalınlığı', minval = 1, maxval = 4, group =
 
 // Doğrusal regresyon fonksiyonu
 calcLinearRegression(src, len) =>
-    sumX = 0.0
-    sumY = 0.0
-    sumXY = 0.0
-    sumX2 = 0.0
+    var float sumX = 0.0
+    var float sumY = 0.0
+    var float sumXY = 0.0
+    var float sumX2 = 0.0
+
+    sumX := 0.0
+    sumY := 0.0
+    sumXY := 0.0
+    sumX2 := 0.0
 
     for i = 0 to len - 1
-        x = float(i)
-        y = src[len - 1 - i]
+        float x = float(i)
+        float y = src[len - 1 - i]
         sumX := sumX + x
         sumY := sumY + y
         sumXY := sumXY + x * y
         sumX2 := sumX2 + x * x
 
-    n = float(len)
-    slope = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX)
-    intercept = (sumY - slope * sumX) / n
+    float n = float(len)
+    float slope = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX)
+    float intercept = (sumY - slope * sumX) / n
 
     [slope, intercept]
 
 // Standart sapma hesaplama
 calcStdDev(src, len, slope, intercept) =>
-    sumSquares = 0.0
+    var float sumSquares = 0.0
+
+    sumSquares := 0.0
 
     for i = 0 to len - 1
-        x = float(i)
-        y = src[len - 1 - i]
-        expectedY = slope * x + intercept
-        deviation = y - expectedY
+        float x = float(i)
+        float y = src[len - 1 - i]
+        float expectedY = slope * x + intercept
+        float deviation = y - expectedY
         sumSquares := sumSquares + deviation * deviation
 
     math.sqrt(sumSquares / len)
