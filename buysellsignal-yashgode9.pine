@@ -98,21 +98,21 @@ plotshape(sellSignal, 'Sell', shape.triangledown, location.abovebar, sellcolor, 
 
 // ==================== DEBUG & INFO (Opsiyonel) ====================
 showDebugInfo = input.bool(false, 'Debug Bilgilerini Göster', group = 'Debug')
-if showDebugInfo
-    var table debugTable = table.new(position.top_right, 2, 6, border_width = 1)
-    if barstate.islast
-        table.cell(debugTable, 0, 0, "Zaman Dilimi", text_color = color.white, bgcolor = color.blue)
-        table.cell(debugTable, 1, 0, is1sChart ? "1 saniye" : isSubMinute ? str.tostring(timeframe.multiplier) + "s" : timeframe.period, text_color = color.white)
-        table.cell(debugTable, 0, 1, "Depth", text_color = color.white, bgcolor = color.blue)
-        table.cell(debugTable, 1, 1, str.tostring(DEPTH_ENGINE), text_color = color.white)
-        table.cell(debugTable, 0, 2, "ATR", text_color = color.white, bgcolor = color.blue)
-        table.cell(debugTable, 1, 2, str.tostring(math.round(atr, 2)), text_color = color.white)
-        table.cell(debugTable, 0, 3, "Min Hareket", text_color = color.white, bgcolor = color.blue)
-        table.cell(debugTable, 1, 3, str.tostring(math.round(minPriceMove, 2)), text_color = color.white)
-        table.cell(debugTable, 0, 4, "Gürültü Filtresi", text_color = color.white, bgcolor = color.blue)
-        table.cell(debugTable, 1, 4, useNoiseFilter ? "✓ Aktif" : "✗ Kapalı", text_color = useNoiseFilter ? color.green : color.red)
-        table.cell(debugTable, 0, 5, "Volume Filtresi", text_color = color.white, bgcolor = color.blue)
-        table.cell(debugTable, 1, 5, useVolumeFilter ? "✓ Aktif" : "✗ Kapalı", text_color = useVolumeFilter ? color.green : color.red)
+var table debugTable = table.new(position.top_right, 2, 6, border_width = 1)
+
+if showDebugInfo and barstate.islast
+    table.cell(debugTable, 0, 0, "Zaman Dilimi", text_color = color.white, bgcolor = color.blue)
+    table.cell(debugTable, 1, 0, is1sChart ? "1 saniye" : isSubMinute ? str.tostring(timeframe.multiplier) + "s" : timeframe.period, text_color = color.white)
+    table.cell(debugTable, 0, 1, "Depth", text_color = color.white, bgcolor = color.blue)
+    table.cell(debugTable, 1, 1, str.tostring(DEPTH_ENGINE), text_color = color.white)
+    table.cell(debugTable, 0, 2, "ATR", text_color = color.white, bgcolor = color.blue)
+    table.cell(debugTable, 1, 2, str.tostring(math.round(atr, 2)), text_color = color.white)
+    table.cell(debugTable, 0, 3, "Min Hareket", text_color = color.white, bgcolor = color.blue)
+    table.cell(debugTable, 1, 3, str.tostring(math.round(minPriceMove, 2)), text_color = color.white)
+    table.cell(debugTable, 0, 4, "Gürültü Filtresi", text_color = color.white, bgcolor = color.blue)
+    table.cell(debugTable, 1, 4, useNoiseFilter ? "✓ Aktif" : "✗ Kapalı", text_color = useNoiseFilter ? color.green : color.red)
+    table.cell(debugTable, 0, 5, "Volume Filtresi", text_color = color.white, bgcolor = color.blue)
+    table.cell(debugTable, 1, 5, useVolumeFilter ? "✓ Aktif" : "✗ Kapalı", text_color = useVolumeFilter ? color.green : color.red)
 
 // Filtrelenmiş sinyalleri göster (debug için)
 showFilteredSignals = input.bool(false, 'Filtrelenmiş Sinyalleri Göster', group = 'Debug', tooltip = 'Filtreler tarafından engellenmiş sinyalleri gri ile gösterir')
