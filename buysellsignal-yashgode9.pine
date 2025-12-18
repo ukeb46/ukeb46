@@ -82,16 +82,6 @@ if buySignal
 if sellSignal
     lastSellBar := barCounter
 
-// ==================== ALERTS ====================
-if buySignal and enableBuyAlerts
-    alert("Buy signal generated!!!", alert.freq_once_per_bar_close)
-
-if sellSignal and enableSellAlerts
-    alert("Sell signal generated!!!", alert.freq_once_per_bar_close)
-
-alertcondition(buySignal and enableBuyAlerts, "Buy Alert", "BUY SIGNAL - {{ticker}} @ {{close}}")
-alertcondition(sellSignal and enableSellAlerts, "Sell Alert", "SELL SIGNAL - {{ticker}} @ {{close}}")
-
 // ==================== PLOT SHAPES ====================
 plotshape(buySignal, 'Buy', shape.triangleup, location.belowbar, buycolor, text = "BUY", size = size.small)
 plotshape(sellSignal, 'Sell', shape.triangledown, location.abovebar, sellcolor, text = "SELL", size = size.small)
